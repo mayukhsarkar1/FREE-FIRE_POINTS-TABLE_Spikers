@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Fire Esports Tournament - Pro League</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap');
+    
+    :root {
+      --bg: #0a0e1a;
+      --card: #111827;
+      --card-glow: #1a2332;
+      --muted: #94a3b8;
+      --accent: #ff9500;
+      --accent-2: #ffc266;
+      --accent-glow: rgba(255,149,0,0.4);
+      --good: #10b981;
+      --danger: #ef4444;
+      --border: #1e293b;
+      --text: #f1f5f9;
+      --gold: #ffd700;
+      --silver: #c0c0c0;
+      --bronze: #cd7f32;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Rajdhani', system-ui, -apple-system, sans-serif;
+      background: 
+        radial-gradient(ellipse 1200px 800px at 50% -20%, rgba(255,149,0,0.12), transparent 70%),
+        radial-gradient(circle 600px at 0% 100%, rgba(239,68,68,0.08), transparent 60%),
+        radial-gradient(circle 600px at 100% 100%, rgba(59,130,246,0.08), transparent 60%),
+        linear-gradient(180deg, #0a0e1a 0%, #050810 100%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    /* Animated background elements */
+    .bg-pattern {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.03;
+      background-image: 
+        repeating-linear-gradient(0deg, transparent, transparent 2px, var(--accent) 2px, var(--accent) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, var(--accent) 2px, var(--accent) 4px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    header { 
+      padding: 24px 16px 16px; 
+      text-align: center; 
+      position: relative;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(17,24,39,0.8) 0%, transparent 100%);
+      border-bottom: 2px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    header h1 { 
+      margin: 0 0 8px; 
+      font-size: 2.8rem; 
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 50%, #fff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 40px var(--accent-glow);
+      animation: glow 3s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from { filter: drop-shadow(0 0 10px var(--accent-glow)); }
+      to { filter: drop-shadow(0 0 20px var(--accent-glow)); }
+    }
+    header .subtitle { 
+      color: var(--muted); 
+      font-size: 1.1rem; 
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    header .tagline {
+      margin-top: 6px;
+      color: var(--accent-2);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+    
+    .card { 
+      background: linear-gradient(135deg, rgba(17,24,39,0.95) 0%, rgba(17,24,39,0.85) 100%);
+      border: 1px solid var(--border); 
+      border-radius: 16px; 
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.6;
+    }
+    
+    .section { padding: 20px; }
+    
+    /* Stage Navigation */
+    .stage-nav {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .stage-btn {
+      padding: 14px 24px;
+      border: 2px solid var(--border);
+      background: linear-gradient(135deg, rgba(30,41,59,0.8), rgba(17,24,39,0.9));
+      color: var(--muted);
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .stage-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+    .stage-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    .stage-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      transform: translateY(-2px);
+    }
+    .stage-btn.active {
+      background: linear-gradient(135deg, var(--accent), #d67d00);
+      border-color: var(--accent);
+      color: #0a0e1a;
+      box-shadow: 0 0 30px var(--accent-glow), 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .stage-btn span {
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Match Input Grid */
+    .match-grid {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .match-card {
+      background: rgba(10,14,26,0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      transition: border-color 0.3s;
+    }
+    .match-card:hover {
+      border-color: var(--accent);
+    }
+    .match-header {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-2);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .match-header::before {
+      content: '▶';
+      color: var(--accent);
+    }
+    
+    .team-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .team-row.header {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(10,14,26,0.8);
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+    }
+    input[type="text"]::placeholder { color: #64748b; }
+    input[type="number"] { 
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { 
+      -webkit-appearance: none;
+      appearance: none;
+      margin: 0;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    
+    button {
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.95rem;
+    }
+    button:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    button:active { transform: translateY(0); }
+    .primary {
+      background: linear-gradient(135deg, var(--accent), #d67d00);
+      color: #0a0e1a;
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+    .primary:hover {
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+    .secondary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      border-color: #3b82f6;
+      color: white;
+    }
+    .danger {
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      border-color: var(--danger);
+      color: white;
+    }
+    
+    .action-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    /* Leaderboard */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--accent-2);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: rgba(255,149,0,0.05);
+    }
+    tbody tr {
+      transition: background 0.2s;
+    }
+    tbody tr:hover {
+      background: rgba(255,149,0,0.08);
+    }
+    tbody tr.qualified {
+      background: rgba(16,185,129,0.1);
+      border-left: 3px solid var(--good);
+    }
+    tbody tr.top3 {
+      font-weight: 700;
+    }
+    
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-weight: 900;
+      font-size: 0.9rem;
+    }
+    .rank-1 { background: linear-gradient(135deg, var(--gold), #ffed4e); color: #1a1a00; }
+    .rank-2 { background: linear-gradient(135deg, var(--silver), #e8e8e8); color: #1a1a1a; }
+    .rank-3 { background: linear-gradient(135deg, var(--bronze), #e69a5c); color: #1a1000; }
+    .rank-other { background: rgba(148,163,184,0.2); color: var(--muted); }
+    
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .pill.kills { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+    .pill.points { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+    
+    /* Podium */
+    .podium-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 20px;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+    .podium-place {
+      text-align: center;
+      animation: slideUp 0.6s ease-out;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .podium-place.p1 { order: 2; animation-delay: 0.2s; }
+    .podium-place.p2 { order: 1; animation-delay: 0.3s; }
+    .podium-place.p3 { order: 3; animation-delay: 0.4s; }
+    .podium-stand {
+      width: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .podium-rank {
+      font-size: 3rem;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+    }
+    .p1 .podium-rank { color: var(--gold); text-shadow: 0 0 20px var(--gold); }
+    .p2 .podium-rank { color: var(--silver); text-shadow: 0 0 20px var(--silver); }
+    .p3 .podium-rank { color: var(--bronze); text-shadow: 0 0 20px var(--bronze); }
+    .podium-team {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      word-break: break-word;
+    }
+    .podium-score {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--accent);
+    }
+    .podium-bar {
+      width: 100%;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.1rem;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+    }
+    .p1 .podium-bar { 
+      height: 200px; 
+      background: linear-gradient(180deg, var(--gold), #b8860b);
+      color: #1a1a00;
+    }
+    .p2 .podium-bar { 
+      height: 150px; 
+      background: linear-gradient(180deg, var(--silver), #909090);
+      color: #1a1a1a;
+    }
+    .p3 .podium-bar { 
+      height: 120px; 
+      background: linear-gradient(180deg, var(--bronze), #8b5a2b);
+      color: #1a1000;
+    }
+    
+    .hidden { display: none !important; }
+    .muted { color: var(--muted); }
+    .text-center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="bg-pattern"></div>
+  
+  <header>
+    <h1>🔥 FREE FIRE PRO LEAGUE 🔥</h1>
+    <p class="subtitle">Multi-Stage Tournament System</p>
+    <p class="tagline">1 Kill = 1 Point | Placement: #1→+12, #2→+9, #3→+8... #10→+1, #11-12→0</p>
+  </header>
+
+  <div class="container">
+    <!-- Stage Navigation -->
+    <div class="stage-nav">
+      <button class="stage-btn active" data-stage="groupA"><span>🏆 GROUP A QUALIFIERS</span></button>
+      <button class="stage-btn" data-stage="groupB"><span>🏆 GROUP B QUALIFIERS</span></button>
+      <button class="stage-btn" data-stage="finals"><span>👑 GRAND FINALS</span></button>
+      <button class="stage-btn" data-stage="winners"><span>🥇 WINNERS</span></button>
+    </div>
+
+    <!-- Group A Qualifiers -->
+    <div id="stage-groupA" class="stage-content">
+      <div class="card section">
+        <h2 style="text-align:center; color: var(--accent); margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">GROUP A - QUALIFIERS (Top 6 Advance)</h2>
+        <div class="match-grid" id="groupA-matches"></div>
+        <div class="action-bar">
+          <button class="primary" onclick="computeGroupStandings('A')">📊 Compute Group A Standings</button>
+          <button class="secondary" onclick="advanceToFinals('A')">➡️ Advance Top 6 to Finals</button>
+          <button class="danger" onclick="resetGroup('A')">🔄 Reset Group A</button>
+        </div>
+      </div>
+      
+      <div class="card section" style="margin-top: 20px;">
+        <h3 style="color: var(--accent-2); margin-bottom: 16px;">📋 Group A Leaderboard</h3>
+        <table id="leaderboard-A">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Team</th>
+              <th>Total Kills</th>
+              <th>Total Points</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="muted text-center">Compute standings to see results</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Group B Qualifiers -->
+    <div id="stage-groupB" class="stage-content hidden">
+      <div class="card section">
+        <h2 style="text-align:center; color: var(--accent); margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">GROUP B - QUALIFIERS (Top 6 Advance)</h2>
+        <div class="match-grid" id="groupB-matches"></div>
+        <div class="action-bar">
+          <button class="primary" onclick="computeGroupStandings('B')">📊 Compute Group B Standings</button>
+          <button class="secondary" onclick="advanceToFinals('B')">➡️ Advance Top 6 to Finals</button>
+          <button class="danger" onclick="resetGroup('B')">🔄 Reset Group B</button>
+        </div>
+      </div>
+      
+      <div class="card section" style="margin-top: 20px;">
+        <h3 style="color: var(--accent-2); margin-bottom: 16px;">📋 Group B Leaderboard</h3>
+        <table id="leaderboard-B">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Team</th>
+              <th>Total Kills</th>
+              <th>Total Points</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="muted text-center">Compute standings to see results</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Grand Finals -->
+    <div id="stage-finals" class="stage-content hidden">
+      <div class="card section">
+        <h2 style="text-align:center; color: var(--accent); margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">👑 GRAND FINALS - 12 TEAMS (Top 6 from Each Group)</h2>
+        <div class="match-grid" id="finals-matches"></div>
+        <div class="action-bar">
+          <button class="primary" onclick="computeFinals()">🏆 Compute Final Standings</button>
+          <button class="danger" onclick="resetFinals()">🔄 Reset Finals</button>
+        </div>
+      </div>
+      
+      <div class="card section" style="margin-top: 20px;">
+        <h3 style="color: var(--accent-2); margin-bottom: 16px;">🏆 Final Leaderboard</h3>
+        <table id="leaderboard-finals">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Team</th>
+              <th>Total Kills</th>
+              <th>Total Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="4" class="muted text-center">Compute standings to see results</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Winners Podium -->
+    <div id="stage-winners" class="stage-content hidden">
+      <div class="card section">
+        <h2 style="text-align:center; color: var(--gold); margin-bottom: 30px; font-family: 'Orbitron', sans-serif; font-size: 2rem;">🏆 TOURNAMENT CHAMPIONS 🏆</h2>
+        <div id="podium-display" class="text-center muted">Complete the finals to see the winners!</div>
+      </div>
+    </div>
+
+    <!-- Utility Bar -->
+    <div class="card section" style="margin-top: 20px;">
+      <div class="action-bar">
+        <button onclick="saveProgress()">💾 Save Progress</button>
+        <button onclick="loadProgress()">📂 Load Progress</button>
+        <button onclick="exportAllData()">📥 Export All Data</button>
+        <button class="danger" onclick="resetAll()">⚠️ Reset Everything</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const placementPoints = { 1:12, 2:9, 3:8, 4:7, 5:6, 6:5, 7:4, 8:3, 9:2, 10:1, 11:0, 12:0 };
+    const state = {
+      groupA: { teams: [], matches: [] },
+      groupB: { teams: [], matches: [] },
+      finals: { teams: [], matches: [] },
+      finalsStandings: []
+    };
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initGroups();
+      setupStageNavigation();
+      tryLoadProgress();
+    });
+
+    function initGroups() {
+      // Initialize Group A (12 teams, 3 matches)
+      for (let i = 1; i <= 12; i++) {
+        state.groupA.teams.push({ id: `A${i}`, name: `Team A${i}`, totalKills: 0, totalPoints: 0 });
+      }
+      for (let m = 1; m <= 3; m++) {
+        state.groupA.matches.push({ id: m, results: [] });
+      }
+      renderGroupMatches('A');
+
+      // Initialize Group B (12 teams, 3 matches)
+      for (let i = 1; i <= 12; i++) {
+        state.groupB.teams.push({ id: `B${i}`, name: `Team B${i}`, totalKills: 0, totalPoints: 0 });
+      }
+      for (let m = 1; m <= 3; m++) {
+        state.groupB.matches.push({ id: m, results: [] });
+      }
+      renderGroupMatches('B');
+    }
+
+    function renderGroupMatches(group) {
+      const container = document.getElementById(`group${group}-matches`);
+      container.innerHTML = '';
+      const groupData = group === 'A' ? state.groupA : state.groupB;
+      
+      groupData.matches.forEach((match, mIdx) => {
+        const card = document.createElement('div');
+        card.className = 'match-card';
+        let html = `<div class="match-header">Match ${match.id}</div>`;
+        html += `<div class="team-row header"><div>Team Name</div><div>Placement</div><div>Kills</div><div>Points</div></div>`;
+        
+        groupData.teams.forEach((team, tIdx) => {
+          html += `
+            <div class="team-row">
+              <input type="text" value="${team.name}" onchange="updateTeamName('${group}', ${tIdx}, this.value)" />
+              <select id="${group}-m${mIdx}-t${tIdx}-place">
+                ${[...Array(12)].map((_, p) => `<option value="${p+1}">${p+1}</option>`).join('')}
+              </select>
+              <input type="number" id="${group}-m${mIdx}-t${tIdx}-kills" min="0" value="0" />
+              <div id="${group}-m${mIdx}-t${tIdx}-pts" class="pill points">0</div>
+            </div>
+          `;
+        });
+        
+        card.innerHTML = html;
+        container.appendChild(card);
+      });
+    }
+
+    function updateTeamName(group, teamIdx, newName) {
+      if (group === 'A') state.groupA.teams[teamIdx].name = newName.trim() || `Team A${teamIdx+1}`;
+      else state.groupB.teams[teamIdx].name = newName.trim() || `Team B${teamIdx+1}`;
+    }
+
+    function computeGroupStandings(group) {
+      const groupData = group === 'A' ? state.groupA : state.groupB;
+      
+      // Reset totals
+      groupData.teams.forEach(t => { t.totalKills = 0; t.totalPoints = 0; });
+      
+      // Aggregate across all matches
+      groupData.matches.forEach((match, mIdx) => {
+        groupData.teams.forEach((team, tIdx) => {
+          const place = parseInt(document.getElementById(`${group}-m${mIdx}-t${tIdx}-place`).value || '12');
+          const kills = Math.max(0, parseInt(document.getElementById(`${group}-m${mIdx}-t${tIdx}-kills`).value || '0'));
+          const placePts = placementPoints[place] || 0;
+          const matchPts = placePts + kills;
+          
+          team.totalKills += kills;
+          team.totalPoints += matchPts;
+          
+          document.getElementById(`${group}-m${mIdx}-t${tIdx}-pts`).textContent = matchPts;
+        });
+      });
+      
+      // Sort teams
+      const sorted = [...groupData.teams].sort((a, b) => {
+        if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+        if (b.totalKills !== a.totalKills) return b.totalKills - a.totalKills;
+        return a.name.localeCompare(b.name);
+      });
+      
+      renderLeaderboard(group, sorted);
+      toast(`Group ${group} standings computed!`);
+    }
+
+    function renderLeaderboard(group, teams) {
+      const tbody = document.querySelector(`#leaderboard-${group} tbody`);
+      tbody.innerHTML = '';
+      
+      teams.forEach((team, idx) => {
+        const tr = document.createElement('tr');
+        if (idx < 6) tr.classList.add('qualified');
+        
+        const rankBadge = idx < 3 ? `rank-${idx+1}` : 'rank-other';
+        const status = idx < 6 ? '✅ QUALIFIED' : '❌ Eliminated';
+        
+        tr.innerHTML = `
+          <td><span class="rank-badge ${rankBadge}">${idx+1}</span></td>
+          <td><strong>${escapeHtml(team.name)}</strong></td>
+          <td><span class="pill kills">${team.totalKills}</span></td>
+          <td><span class="pill points">${team.totalPoints}</span></td>
+          <td>${status}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function advanceToFinals(group) {
+      const groupData = group === 'A' ? state.groupA : state.groupB;
+      const sorted = [...groupData.teams].sort((a, b) => {
+        if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+        if (b.totalKills !== a.totalKills) return b.totalKills - a.totalKills;
+        return a.name.localeCompare(b.name);
+      });
+      
+      const top6 = sorted.slice(0, 6);
+      
+      if (group === 'A') {
+        state.finals.teams = state.finals.teams.filter(t => !t.id.startsWith('A'));
+        state.finals.teams.push(...top6.map(t => ({ ...t, totalKills: 0, totalPoints: 0 })));
+      } else {
+        state.finals.teams = state.finals.teams.filter(t => !t.id.startsWith('B'));
+        state.finals.teams.push(...top6.map(t => ({ ...t, totalKills: 0, totalPoints: 0 })));
+      }
+      
+      if (state.finals.teams.length === 12) {
+        initFinals();
+        toast(`Top 6 from Group ${group} advanced! Finals ready with 12 teams.`);
+      } else {
+        toast(`Top 6 from Group ${group} advanced! (${state.finals.teams.length}/12 teams)`);
+      }
+    }
+
+    function initFinals() {
+      state.finals.matches = [];
+      for (let m = 1; m <= 3; m++) {
+        state.finals.matches.push({ id: m, results: [] });
+      }
+      renderFinalsMatches();
+    }
+
+    function renderFinalsMatches() {
+      const container = document.getElementById('finals-matches');
+      container.innerHTML = '';
+      
+      if (state.finals.teams.length !== 12) {
+        container.innerHTML = '<p class="muted text-center">Advance top 6 teams from both groups first!</p>';
+        return;
+      }
+      
+      state.finals.matches.forEach((match, mIdx) => {
+        const card = document.createElement('div');
+        card.className = 'match-card';
+        let html = `<div class="match-header">Finals Match ${match.id}</div>`;
+        html += `<div class="team-row header"><div>Team Name</div><div>Placement</div><div>Kills</div><div>Points</div></div>`;
+        
+        state.finals.teams.forEach((team, tIdx) => {
+          html += `
+            <div class="team-row">
+              <div style="padding: 10px; font-weight: 700;">${escapeHtml(team.name)}</div>
+              <select id="F-m${mIdx}-t${tIdx}-place">
+                ${[...Array(12)].map((_, p) => `<option value="${p+1}">${p+1}</option>`).join('')}
+              </select>
+              <input type="number" id="F-m${mIdx}-t${tIdx}-kills" min="0" value="0" />
+              <div id="F-m${mIdx}-t${tIdx}-pts" class="pill points">0</div>
+            </div>
+          `;
+        });
+        
+        card.innerHTML = html;
+        container.appendChild(card);
+      });
+    }
+
+    function computeFinals() {
+      if (state.finals.teams.length !== 12) {
+        toast('Finals not ready! Advance teams from both groups first.');
+        return;
+      }
+      
+      // Reset totals
+      state.finals.teams.forEach(t => { t.totalKills = 0; t.totalPoints = 0; });
+      
+      // Aggregate
+      state.finals.matches.forEach((match, mIdx) => {
+        state.finals.teams.forEach((team, tIdx) => {
+          const place = parseInt(document.getElementById(`F-m${mIdx}-t${tIdx}-place`).value || '12');
+          const kills = Math.max(0, parseInt(document.getElementById(`F-m${mIdx}-t${tIdx}-kills`).value || '0'));
+          const placePts = placementPoints[place] || 0;
+          const matchPts = placePts + kills;
+          
+          team.totalKills += kills;
+          team.totalPoints += matchPts;
+          
+          document.getElementById(`F-m${mIdx}-t${tIdx}-pts`).textContent = matchPts;
+        });
+      });
+      
+      // Sort
+      const sorted = [...state.finals.teams].sort((a, b) => {
+        if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+        if (b.totalKills !== a.totalKills) return b.totalKills - a.totalKills;
+        return a.name.localeCompare(b.name);
+      });
+      
+      state.finalsStandings = sorted;
+      renderFinalsLeaderboard(sorted);
+      renderPodium(sorted);
+      toast('🏆 Finals complete! Check Winners tab!');
+    }
+
+    function renderFinalsLeaderboard(teams) {
+      const tbody = document.querySelector('#leaderboard-finals tbody');
+      tbody.innerHTML = '';
+      
+      teams.forEach((team, idx) => {
+        const tr = document.createElement('tr');
+        if (idx < 3) tr.classList.add('top3');
+        
+        const rankBadge = idx < 3 ? `rank-${idx+1}` : 'rank-other';
+        
+        tr.innerHTML = `
+          <td><span class="rank-badge ${rankBadge}">${idx+1}</span></td>
+          <td><strong>${escapeHtml(team.name)}</strong></td>
+          <td><span class="pill kills">${team.totalKills}</span></td>
+          <td><span class="pill points">${team.totalPoints}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderPodium(teams) {
+      const container = document.getElementById('podium-display');
+      if (teams.length < 3) {
+        container.innerHTML = '<p class="muted">Complete the finals to see the winners!</p>';
+        return;
+      }
+      
+      const [first, second, third] = teams;
+      container.innerHTML = `
+        <div class="podium-container">
+          <div class="podium-place p2">
+            <div class="podium-stand">
+              <div class="podium-rank">🥈</div>
+              <div class="podium-team">${escapeHtml(second.name)}</div>
+              <div class="podium-score">${second.totalPoints} pts</div>
+              <div class="podium-bar">2ND</div>
+            </div>
+          </div>
+          <div class="podium-place p1">
+            <div class="podium-stand">
+              <div class="podium-rank">🥇</div>
+              <div class="podium-team">${escapeHtml(first.name)}</div>
+              <div class="podium-score">${first.totalPoints} pts</div>
+              <div class="podium-bar">CHAMPION</div>
+            </div>
+          </div>
+          <div class="podium-place p3">
+            <div class="podium-stand">
+              <div class="podium-rank">🥉</div>
+              <div class="podium-team">${escapeHtml(third.name)}</div>
+              <div class="podium-score">${third.totalPoints} pts</div>
+              <div class="podium-bar">3RD</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function setupStageNavigation() {
+      document.querySelectorAll('.stage-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const stage = btn.dataset.stage;
+          document.querySelectorAll('.stage-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          document.querySelectorAll('.stage-content').forEach(s => s.classList.add('hidden'));
+          document.getElementById(`stage-${stage}`).classList.remove('hidden');
+        });
+      });
+    }
+
+    function resetGroup(group) {
+      if (!confirm(`Reset all Group ${group} data?`)) return;
+      const groupData = group === 'A' ? state.groupA : state.groupB;
+      groupData.matches.forEach((match, mIdx) => {
+        groupData.teams.forEach((team, tIdx) => {
+          document.getElementById(`${group}-m${mIdx}-t${tIdx}-place`).value = '1';
+          document.getElementById(`${group}-m${mIdx}-t${tIdx}-kills`).value = '0';
+          document.getElementById(`${group}-m${mIdx}-t${tIdx}-pts`).textContent = '0';
+        });
+      });
+      document.querySelector(`#leaderboard-${group} tbody`).innerHTML = '<tr><td colspan="5" class="muted text-center">Compute standings to see results</td></tr>';
+      toast(`Group ${group} reset`);
+    }
+
+    function resetFinals() {
+      if (!confirm('Reset all Finals data?')) return;
+      state.finals.matches.forEach((match, mIdx) => {
+        state.finals.teams.forEach((team, tIdx) => {
+          document.getElementById(`F-m${mIdx}-t${tIdx}-place`).value = '1';
+          document.getElementById(`F-m${mIdx}-t${tIdx}-kills`).value = '0';
+          document.getElementById(`F-m${mIdx}-t${tIdx}-pts`).textContent = '0';
+        });
+      });
+      document.querySelector('#leaderboard-finals tbody').innerHTML = '<tr><td colspan="4" class="muted text-center">Compute standings to see results</td></tr>';
+      document.getElementById('podium-display').innerHTML = '<p class="muted text-center">Complete the finals to see the winners!</p>';
+      toast('Finals reset');
+    }
+
+    function resetAll() {
+      if (!confirm('⚠️ Reset EVERYTHING? This cannot be undone!')) return;
+      location.reload();
+    }
+
+    function saveProgress() {
+      const data = { groupA: state.groupA, groupB: state.groupB, finals: state.finals };
+      localStorage.setItem('ff_tournament_v2', JSON.stringify(data));
+      toast('💾 Progress saved!');
+    }
+
+    function loadProgress() {
+      const raw = localStorage.getItem('ff_tournament_v2');
+      if (!raw) { toast('No saved data found'); return; }
+      try {
+        const data = JSON.parse(raw);
+        Object.assign(state, data);
+        renderGroupMatches('A');
+        renderGroupMatches('B');
+        if (state.finals.teams.length === 12) renderFinalsMatches();
+        toast('📂 Progress loaded!');
+      } catch (e) {
+        console.error(e);
+        toast('Failed to load');
+      }
+    }
+
+    function tryLoadProgress() {
+      const raw = localStorage.getItem('ff_tournament_v2');
+      if (raw) {
+        try {
+          const data = JSON.parse(raw);
+          Object.assign(state, data);
+          renderGroupMatches('A');
+          renderGroupMatches('B');
+          if (state.finals.teams.length === 12) renderFinalsMatches();
+        } catch (e) { console.error(e); }
+      }
+    }
+
+    function exportAllData() {
+      const csv = [];
+      csv.push('Stage,Team,Total Kills,Total Points');
+      
+      ['A', 'B'].forEach(g => {
+        const gData = g === 'A' ? state.groupA : state.groupB;
+        gData.teams.forEach(t => {
+          csv.push(`Group ${g},${t.name},${t.totalKills},${t.totalPoints}`);
+        });
+      });
+      
+      if (state.finalsStandings.length) {
+        state.finalsStandings.forEach((t, i) => {
+          csv.push(`Finals (Rank ${i+1}),${t.name},${t.totalKills},${t.totalPoints}`);
+        });
+      }
+      
+      const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'freefire_tournament_results.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('📥 Data exported!');
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    }
+
+    function toast(msg) {
+      let el = document.getElementById('toast');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'toast';
+        el.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:12px 20px;background:linear-gradient(135deg,#ff9500,#d67d00);color:#0a0e1a;border-radius:10px;font-weight:700;box-shadow:0 4px 20px rgba(255,149,0,0.5);z-index:9999;font-family:Rajdhani,sans-serif;';
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.style.opacity = '1';
+      setTimeout(() => { el.style.transition = 'opacity 0.5s'; el.style.opacity = '0'; }, 2500);
+    }
+  </script>
+</body>
+</html>
